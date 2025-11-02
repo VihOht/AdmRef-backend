@@ -83,3 +83,5 @@ This document outlines all available API endpoints, their purposes, and authenti
 
 
 Go back to [Project Overview](./project_overview.md)
+or
+Go back to [Readme](../README.md)
