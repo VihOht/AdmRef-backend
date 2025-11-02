@@ -54,7 +54,7 @@ direction LR
     Category <|-- IncomesCategory
 
     %% Each Transaction may have 0..1 category; each Category can have many transactions
-    Incomes "0..1" --> "0..*" IncomesCategory
+    Income "0..1" --> "0..*" IncomesCategory
     Expense "0..1" --> "0..*" ExpensesCategory
 
     class User {
