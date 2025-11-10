@@ -130,7 +130,7 @@ const login = async (req: Request, res: Response) => {
         return res.status(403).json({ message: 'Please verify your email before logging in'})
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "NotVerySecure", { expiresIn: '2h'})
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "NotVerySecure", { expiresIn: '6h'})
     return res.status(200).json({ token });
 }
 

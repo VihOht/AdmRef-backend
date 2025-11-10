@@ -15,6 +15,8 @@ const unprotectedRoutes: string[] = [
     '/api/auth/register',
 ]
 
+const currecys = ['USD', 'EUR', 'BRL']
+
 
 
 const sendEmail = async (to: string, html: string, data: any) => {
@@ -46,4 +48,4 @@ const sendEmail = async (to: string, html: string, data: any) => {
     return { success: true };
 };
 
-export { prisma, unprotectedRoutes, sendEmail };
+export { prisma, unprotectedRoutes, sendEmail, currecys };
