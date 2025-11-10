@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
@@ -14,10 +14,6 @@ const unprotectedRoutes: string[] = [
     '/api/auth/resend-verification',
     '/api/auth/register',
 ]
-
-const currecys = ['USD', 'EUR', 'BRL']
-
-
 
 const sendEmail = async (to: string, html: string, data: any) => {
     const templatePath = path.join(__dirname, 'templates');
@@ -48,4 +44,4 @@ const sendEmail = async (to: string, html: string, data: any) => {
     return { success: true };
 };
 
-export { prisma, unprotectedRoutes, sendEmail, currecys };
+export { prisma, unprotectedRoutes, sendEmail };

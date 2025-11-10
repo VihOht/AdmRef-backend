@@ -71,7 +71,7 @@ model Category {
   accountId   String
   name        String
   description String?
-  type        CategoryType
+  domain        CategoryDomain
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -91,7 +91,7 @@ enum TransactionType {
   EXPENSE
 }
 
-enum CategoryType {
+enum CategoryDomain {
   INCOME
   EXPENSE
 }
