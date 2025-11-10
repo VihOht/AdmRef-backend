@@ -1,5 +1,14 @@
 import { PrismaClient } from "@prisma/client"
 
-const prisma = PrismaClient()
+const prisma = new PrismaClient()
 
-export { prisma }
+const unprotectedRoutes: string[] = [
+    '/',
+    '/api/auth/login',
+    '/api/auth/verify',
+    '/api/auth/resend-verification',
+    '/api/auth/register',
+]
+
+
+export { prisma, unprotectedRoutes }
