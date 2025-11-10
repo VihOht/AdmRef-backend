@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { prisma } from '../utils'
+import { prisma, sendEmail } from '../utils'
 
 const register = async (req: Request, res: Response) => {
     const { email, password }: { email: string; password: string } = req.body ;
@@ -23,12 +23,92 @@ const register = async (req: Request, res: Response) => {
             email,
             password: hashedPassword,
             username,
-            isVerified: true
         }
     })
-    
+
+    const verificationToken = await prisma.token.create({
+        data: {
+            userId: newUser.id,
+            expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+            type: 'EMAIL_VERIFICATION'
+        }
+    })
+
+
+    const verificationLink = `${process.env.FRONTEND_URL}/auth/verify?email=${email}&token=${verificationToken.id}`;
+    const result = await sendEmail(email, 'verifyEmail', { verificationLink, subject: 'Verify your email' });    
+    if (!result.success) {
+        return res.status(500).json({ message: 'Failed to send verification email' + result.error })
+    }
     return res.status(201).json({ message: 'User registered, check your email to verify your account'})
 }
+
+const verifyEmail = async (req: Request, res: Response) => {
+    const { email, token } : { email: string; token: string } = req.body as any;
+
+    if (!email || !token) {
+        return res.status(400).json({ message: 'Email and token are required'})
+    }
+
+    const user = await prisma.user.findUnique( { where: { email: email } } )
+    if (!user) {
+        return res.status(400).json({ message: 'Invalid email or token'})
+    }
+
+    if (user.isVerified) {
+        return res.status(400).json({ message: 'Email is already verified'})
+    }
+
+    const storedToken = await prisma.token.findUnique( { where: { id: token } } )
+    if (!storedToken || storedToken.userId !== user.id || storedToken.usedAt || storedToken.expiresAt < new Date() || storedToken.type !== 'EMAIL_VERIFICATION') {
+        return res.status(400).json({ message: 'Invalid or expired token'})
+    }
+
+    await prisma.user.update( { where: { id: user.id }, data: { isVerified: true } } )
+    await prisma.token.update( { where: { id: storedToken.id }, data: { usedAt: new Date() } } )
+
+    return res.status(200).json({ message: 'Email verified successfully'})
+}
+
+const resendVerification = async (req: Request, res: Response) => {
+    const { email } : { email: string } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required'})
+    }
+
+    const user = await prisma.user.findUnique( { where: { email: email } } )
+    if (!user) {
+        return res.status(400).json({ message: 'Invalid email'})
+    }
+
+    if (user.isVerified) {
+        return res.status(400).json({ message: 'Email is already verified'})
+    }
+
+    const existingToken = await prisma.token.findFirst( { where: { userId: user.id, usedAt: null, expiresAt: { gt: new Date() }, type: 'EMAIL_VERIFICATION' } } )
+    let verificationToken;
+    if (existingToken) {
+        prisma.token.update( { where: { id: existingToken.id }, data: { expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000) } } )
+        verificationToken = existingToken;
+    } else {
+        verificationToken = await prisma.token.create({
+            data: {
+                userId: user.id,
+                expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+                type: 'EMAIL_VERIFICATION'
+            }
+        })}
+
+    const verificationLink = `${process.env.FRONTEND_URL}/auth/verify?email=${email}&token=${verificationToken.id}`;
+    const result = await sendEmail(email, 'verifyEmail', { verificationLink, subject: 'Verify your email' });    
+    if (!result.success) {
+        return res.status(500).json({ message: 'Failed to send verification email' + result.error })
+    }    
+    return res.status(200).json({ message: 'Verification email resent'})
+}
+
+    
 
 const login = async (req: Request, res: Response) => {
     const { email, password }: { email: string, password: string} = req.body
@@ -60,4 +140,4 @@ const me = async (req: Request, res: Response) => {
     return res.status(200).json({ user });
 }
 
-export default { register, login, me }
+export default { register, verifyEmail, resendVerification, login, me }

@@ -30,6 +30,13 @@ model Token {
   createdAt DateTime @default(now())
   expiresAt DateTime
   usedAt    DateTime?
+  type     TokenType
 
   user User @relation(fields: [userId], references: [id])
+}
+
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
 }
