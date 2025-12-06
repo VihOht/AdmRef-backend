@@ -9,24 +9,31 @@ This backend project provides a financial management API that allows users to re
 
 ```plaintext
 Backend/
+├── prisma/                    # Prisma ORM configuration and schema
+│   └── schema.prisma
 │
-├── /api
-│   └── /exampleApi
-│       ├── models.js      # Defines data models and Prisma schema mappings
-│       ├── routes.js      # Handles API routes and endpoints
-│       └── views.js       # Manages response formatting and data presentation
+├── docs/                      # Project documentation (architecture, specs, guides)
 │
-├── /core
-│   ├── constants.js       # Application-wide constants and configuration values
-│   ├── utils.js           # Helper and utility functions
-│   └── db.js              # Database connection and Prisma client setup
+├── src/                       # Main application source code
+│   ├── controllers/           # Manages response formatting and data presentation
+│   ├── routes/                # Defines API routes and their handlers
+│   ├── core/                  # Core system modules and essential logic
+│   ├── templates/             # HTML templates for emails and message rendering
+│   ├── app.ts                 # App initialization, middleware setup, configuration
+│   ├── constants.ts           # Application-wide constants and configuration values
+│   └── utils.ts               # General-purpose helper functions
 │
-├── /tests
-│   └── ...                # Automated tests for endpoints and logic
+├── index.ts                   # Entry point: bootstraps the server and main API logic
 │
-├── main.js                # Entry point that initializes the Express server
-├── .env                   # Environment variables (database URL, secrets, etc.)
-└── .gitignore             # Files and folders excluded from version control
+├── package.json               # Project dependencies and scripts
+├── prisma.config.ts           # Prisma initialization and custom configuration
+├── tsconfig.json              # TypeScript configuration
+│
+├── .env                       # Environment variables for development
+├── .env.example               # Example template showing required environment variables
+│
+├── README.md                  # Main repository documentation
+└── .gitignore                 # Specifies untracked files/folders
 ```
 
 ---
