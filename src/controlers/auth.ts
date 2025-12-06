@@ -1,9 +1,16 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { prisma, sendEmail } from '../utils'
+import { prisma, sendEmail } from '../core/utils'
 
-const register = async (req: Request, res: Response) => {
+
+/**
+ * Register a new user with email and password.
+ * @param req - Request object containing `email` and `password` in the body
+ * @param res - Response object to send back the result
+ * @returns JSON response indicating success or failure of registration
+ */
+export const register = async (req: Request, res: Response) => {
     const { email, password }: { email: string; password: string } = req.body ;
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password are required'})
@@ -43,7 +50,14 @@ const register = async (req: Request, res: Response) => {
     return res.status(201).json({ message: 'User registered, check your email to verify your account'})
 }
 
-const verifyEmail = async (req: Request, res: Response) => {
+
+/**
+ * Verify user's email using the provided token.
+ * @param req - Request object containing `email` and `token` in the body
+ * @param res - Response object to send back the result
+ * @returns JSON response indicating success or failure of email verification
+ */
+export const verifyEmail = async (req: Request, res: Response) => {
     const { email, token } : { email: string; token: string } = req.body as any;
 
     if (!email || !token) {
@@ -70,7 +84,13 @@ const verifyEmail = async (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Email verified successfully'})
 }
 
-const resendVerification = async (req: Request, res: Response) => {
+/**
+ * Resend verification email to the user.
+ * @param req - Request object containing `email` in the body
+ * @param res - Response object to send back the result
+ * @returns JSON response indicating success or failure of resending verification email
+ */
+export const resendVerification = async (req: Request, res: Response) => {
     const { email } : { email: string } = req.body;
 
     if (!email) {
@@ -108,9 +128,13 @@ const resendVerification = async (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Verification email resent'})
 }
 
-    
-
-const login = async (req: Request, res: Response) => {
+/**
+ * User login with email and password.
+ * @param req - Request object containing `email` and `password` in the body
+ * @param res - Response object to send back the result
+ * @returns JSON response containing JWT `token` on successful login
+ */
+export const login = async (req: Request, res: Response) => {
     const { email, password }: { email: string, password: string} = req.body
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password are required'})
@@ -134,7 +158,7 @@ const login = async (req: Request, res: Response) => {
     return res.status(200).json({ token });
 }
 
-const me = async (req: Request, res: Response) => {
+export const me = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = await prisma.user.findUnique({ where: {id: userId}, select: {email: true, username: true}})
     return res.status(200).json({ user });

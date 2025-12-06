@@ -1,13 +1,21 @@
 import { Decimal } from '@prisma/client/runtime/library'
-import { prisma } from '../utils'
+import { prisma } from '../core/utils'
 import { Request, Response } from 'express'
 import { CategoryDomain, Currency, TransactionType } from '@prisma/client'
+import { AuthRequest } from '../core'
 
 
 // Account Controllers
 
-export const getUserAccounts = async (req: Request, res: Response) => {
-    const userId = (req as any).userId
+
+/**
+ * Returns all accounts for the authenticated user.
+ * @param req getAccountsRequestInt
+ * @param res Response
+ * @returns JSON array of user accounts
+ */
+export const getUserAccounts = async (req: AuthRequest, res: Response) => {
+    const userId = req.userId
 
     const accounts = await prisma.account.findMany({
         where: { userId }, select: {
@@ -24,9 +32,17 @@ export const getUserAccounts = async (req: Request, res: Response) => {
     return res.status(200).json(accounts)
 }
 
-export const getUserAccount = async (req: Request, res: Response) => {
+
+/**
+ * Returns a specific account for the authenticated user, including recent transactions.
+ * 
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the account with recent transactions
+ */
+export const getUserAccount = async (req: AuthRequest, res: Response) => {
     const { accountId } = req.params
-    const userId = (req as any).userId
+    const userId = req.userId
 
     const account = await prisma.account.findFirst({
         where: { id: accountId, userId },
@@ -66,6 +82,12 @@ export const getUserAccount = async (req: Request, res: Response) => {
     return res.status(200).json(account)
 }
 
+/**
+ * Creates a new account for the authenticated user.
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 export const createUserAccount = async (req: Request, res: Response) => {
     const userId = (req as any).userId
     const { name, currency } = req.body
@@ -97,6 +119,12 @@ export const createUserAccount = async (req: Request, res: Response) => {
     return res.status(201).json(newAccount)
 }
 
+/**
+ * Deletes an account for the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns 204 No Content on successful deletion
+ */
 export const deleteUserAccount = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
@@ -116,6 +144,13 @@ export const deleteUserAccount = async (req: Request, res: Response) => {
     return res.status(204).send();
 }
 
+
+/**
+ * Updates an account for the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the updated account
+ */
 export const updateUserAccount = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
@@ -154,15 +189,27 @@ export const updateUserAccount = async (req: Request, res: Response) => {
             data: { name, currency }
         })
     }
-    return res.status(200).json({ message: 'Account updated successfully.' })
+    return res.status(200).json({ account: await prisma.account.findUnique({ where: { id: accountId } }) })
 }
 
+
+/**
+ * Returns a list of supported currencies.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of supported currencies 
+ */
 export const getSupportedCurrencies = async (req: Request, res: Response) => {
     return res.status(200).json({ currencies: Object.values(Currency) })
 }
 
 // Transactions Controllers
-
+/**
+ * Returns a specific transaction for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the requested transaction
+ */
 export const getAccountTransaction = async (req: Request, res: Response) => {
     const { accountId, transactionId } = req.params
     const userId = (req as any).userId
@@ -195,6 +242,13 @@ export const getAccountTransaction = async (req: Request, res: Response) => {
     })
 }
 
+
+/**
+ * Returns a list of transactions for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the requested transactions
+ */
 export const getAccountTransactions = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
@@ -230,7 +284,13 @@ export const getAccountTransactions = async (req: Request, res: Response) => {
     return res.status(200).json({ transactions })
 }
 
-const createAccountTransaction = async (req: Request, res: Response) => {
+/**
+ * Creates a new transaction for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the created transaction
+ */
+export const createAccountTransaction = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
     const { amount, description, categoryId } = req.body
@@ -277,7 +337,13 @@ const createAccountTransaction = async (req: Request, res: Response) => {
     return res.status(201).json(newTransaction)
 }
 
-const deleteAccountTransaction = async (req: Request, res: Response) => {
+/**
+ * Delete a transaction from an account of the authenticated user.
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export const deleteAccountTransaction = async (req: Request, res: Response) => {
     const { accountId, transactionId } = req.params
     const userId = (req as any).userId
 
@@ -311,7 +377,13 @@ const deleteAccountTransaction = async (req: Request, res: Response) => {
     return res.status(204).send();
 }
 
-const updateAccountTransaction = async (req: Request, res: Response) => {
+/**
+ * Update a transaction from an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the updated transaction
+ */
+export const updateAccountTransaction = async (req: Request, res: Response) => {
     const { accountId, transactionId } = req.params
     const userId = (req as any).userId
     const { amount, description, categoryId } = req.body
@@ -366,9 +438,13 @@ const updateAccountTransaction = async (req: Request, res: Response) => {
     return res.status(200).json(updatedTransaction)
 }
 
-// Categories Controllers
-
-const getAccountCategories = async (req: Request, res: Response) => {
+/**
+ * Get all categories for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object containing an array of categories
+ */
+export const getAccountCategories = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
 
@@ -396,7 +472,13 @@ const getAccountCategories = async (req: Request, res: Response) => {
     return res.status(200).json({ categories })
 }
 
-const getAccountCategory = async (req: Request, res: Response) => {
+
+/** * Get a specific category for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the requested category
+ */
+export const getAccountCategory = async (req: Request, res: Response) => {
     const { accountId, categoryId } = req.params
     const userId = (req as any).userId
 
@@ -428,7 +510,13 @@ const getAccountCategory = async (req: Request, res: Response) => {
     return res.status(200).json(category)
 }
 
-const createAccountCategory = async (req: Request, res: Response) => {
+/**
+ * Create a new category for an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns JSON object of the created category
+ */
+export const createAccountCategory = async (req: Request, res: Response) => {
     const { accountId } = req.params
     const userId = (req as any).userId
     const { name, description, domain } = req.body
@@ -466,7 +554,14 @@ const createAccountCategory = async (req: Request, res: Response) => {
     return res.status(201).json(newCategory)
 }
 
-const deleteAccountCategory = async (req: Request, res: Response) => {
+
+/**
+ * Deletes a category from an account of the authenticated user.
+ * @param req AuthRequest
+ * @param res Response
+ * @returns A 204 No Content response on successful deletion
+ */
+export const deleteAccountCategory = async (req: Request, res: Response) => {
     const { accountId, categoryId } = req.params
     const userId = (req as any).userId
 
@@ -493,7 +588,13 @@ const deleteAccountCategory = async (req: Request, res: Response) => {
     return res.status(204).send();
 }
 
-const updateAccountCategory = async (req: Request, res: Response) => {
+/**
+ * Update a category from an account of the authenticated user.
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export const updateAccountCategory = async (req: Request, res: Response) => {
     const { accountId, categoryId } = req.params
     const userId = (req as any).userId
     const { name, description, domain } = req.body
@@ -535,6 +636,7 @@ const updateAccountCategory = async (req: Request, res: Response) => {
 
 
 export default { 
+    // Accounts Controllers
     getUserAccounts,
     getUserAccount,
     createUserAccount,
@@ -542,11 +644,14 @@ export default {
     updateUserAccount,
     getSupportedCurrencies,
 
+    // Transactions Controllers
+    getAccountTransaction,
     getAccountTransactions,
     createAccountTransaction,
     deleteAccountTransaction,
     updateAccountTransaction,
 
+    // Categories Controllers
     getAccountCategories,
     getAccountCategory,
     createAccountCategory,

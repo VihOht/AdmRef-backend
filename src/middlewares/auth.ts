@@ -1,20 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
-import { unprotectedRoutes } from '../utils';
+import { unprotectedRoutes } from '../core/utils';
 import jwt from 'jsonwebtoken';
+import type { AuthRequest } from '../core/types';
 
-interface AuthRequest extends Request {
-    userId?: string;
-}
 
+/**
+ * Middleware to validate JWT tokens in incoming requests.
+ * Skips validation for unprotected routes.
+ * Extracts userId from the token and attaches it to the request object.
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Next middleware function
+*/
 export const jwtValidator = (req: AuthRequest, res: Response, next: NextFunction) => {
+    
     if (unprotectedRoutes.includes(req.path)) {
         return next();
     }
-
+    
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res.status(401).json({ message: 'Authorization header missing'});
-    }
+    } 
 
     const headerToken = authHeader.split(' ')
     if (headerToken.length !== 2 || headerToken[0] !== 'Bearer') {

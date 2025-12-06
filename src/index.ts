@@ -1,9 +1,23 @@
-import app from './app';
-import dotenv from 'dotenv';
+/**
+ * Initialize and configure the Express application.
+ * Applies necessary middlewares and sets up the main API routes.
+ */
 
-dotenv.config();
 
+import express from 'express';
+import { mainRouter } from './routes'
+import middlewares from './middlewares';
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on port http://localhost:${process.env.PORT || 3000}`);
-})
+const app = express();
+
+// Apply middlewares
+app.use(express.json());
+app.use(middlewares.jwtValidator);
+
+app.use('/api', mainRouter);
+
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+export default app;

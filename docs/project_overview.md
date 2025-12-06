@@ -19,12 +19,17 @@ Backend/
 │   ├── routes/                # Defines API routes and their handlers
 │   ├── core/                  # Core system modules and essential logic
 │   ├── templates/             # HTML templates for emails and message rendering
+│   ├── middlewares/           # Custom middleware (auth, logs, validation, rate-limit, etc.)
 │   ├── app.ts                 # App initialization, middleware setup, configuration
 │   ├── constants.ts           # Application-wide constants and configuration values
 │   └── utils.ts               # General-purpose helper functions
+|
+├── tests/                     # Automated tests (unit, integration, e2e)
+│   ├── unit/                  # Tests for isolated functions/modules
+│   ├── integration/           # Tests covering combined modules (ex: controllers + services)
+│   └── e2e/                   # End-to-end tests simulating real API usage
 │
 ├── index.ts                   # Entry point: bootstraps the server and main API logic
-│
 ├── package.json               # Project dependencies and scripts
 ├── prisma.config.ts           # Prisma initialization and custom configuration
 ├── tsconfig.json              # TypeScript configuration

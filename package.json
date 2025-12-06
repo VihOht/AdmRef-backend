@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "node index.js",
+    "dev": "nodemon index.ts",
     "build": "tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
