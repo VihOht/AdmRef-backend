@@ -170,26 +170,26 @@ export const updateUserAccount = async (req: Request, res: Response) => {
     if (!name && !currency) {
         return res.status(400).json({ message: 'At least one field (name or currency) must be provided for update.' })
     }
-    
+
     if (name) {
-        const existingAccount =  await prisma.account.findFirst({
+        const existingAccount = await prisma.account.findFirst({
             where: { userId, name, NOT: { id: accountId } }
         })
         if (existingAccount) {
             return res.status(409).json({ message: 'An account with this name already exists for the user.' })
         }
-        prisma.account.update({
-            where: { id: accountId },
-            data: { name }
-        })
     }
-    if (currency) {
-        await prisma.account.update({
-            where: { id: accountId },
-            data: { name, currency }
-        })
-    }
-    return res.status(200).json({ account: await prisma.account.findUnique({ where: { id: accountId } }) })
+
+    const data: { name?: string; currency?: Currency } = {}
+    if (name) data.name = name
+    if (currency) data.currency = currency
+
+    const updated = await prisma.account.update({
+        where: { id: accountId },
+        data
+    })
+
+    return res.status(200).json({ account: updated })
 }
 
 
@@ -240,6 +240,7 @@ export const getAccountTransaction = async (req: Request, res: Response) => {
             updatedAt: true
         }
     })
+    return res.status(200).json(transaction)
 }
 
 
@@ -460,6 +461,7 @@ export const getAccountCategories = async (req: Request, res: Response) => {
         select: {
             id: true,
             name: true,
+            domain: true,
             description: true,
             createdAt: true,
             updatedAt: true
