@@ -12,9 +12,9 @@ import cors from 'cors';
 const app = express();
 
 // Apply middlewares
+app.use(cors());
 app.use(express.json());
 app.use(middlewares.jwtValidator);
-app.use(cors());
 
 app.use('/api', mainRouter);
 
