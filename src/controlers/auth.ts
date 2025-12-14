@@ -161,7 +161,7 @@ export const login = async (req: Request, res: Response) => {
 export const me = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = await prisma.user.findUnique({ where: {id: userId}, select: {email: true, username: true}})
-    return res.status(200).json({ user });
+    return res.status(200).json(user);
 }
 
 export default { register, verifyEmail, resendVerification, login, me }

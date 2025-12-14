@@ -237,6 +237,7 @@ export const getAccountTransaction = async (req: Request, res: Response) => {
                     description: true,
                 }
             },
+            categoryId: true,
             updatedAt: true
         }
     })
@@ -275,7 +276,8 @@ export const getAccountTransactions = async (req: Request, res: Response) => {
                     name: true,
                     description: true,
                 }
-            }
+            },
+            categoryId: true,
         },
         orderBy: {
             createdAt: 'desc'
@@ -464,7 +466,8 @@ export const getAccountCategories = async (req: Request, res: Response) => {
             domain: true,
             description: true,
             createdAt: true,
-            updatedAt: true
+            updatedAt: true,
+            transactions: { select: { id: true, amount: true, description: true} }
         },
         orderBy: {
             name: 'asc'
@@ -501,7 +504,8 @@ export const getAccountCategory = async (req: Request, res: Response) => {
             domain: true,
             description: true,
             createdAt: true,
-            updatedAt: true
+            updatedAt: true,
+            transactions: { select: { id: true, amount: true, description: true} }
         }
     })
 
